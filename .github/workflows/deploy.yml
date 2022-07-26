@@ -1,0 +1,27 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to SSH Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            cd ~/RIDM-Backend
+            git pull
+            /etc/poetry/bin/poetry install
+            /etc/poetry/bin/poetry update
+            sudo kill -9 $(pgrep python) || true
+            tmux kill-session -t ridm || true
+            tmux new-session -d -s ridm || true
+            tmux send-keys -t ridm "sudo /etc/poetry/bin/poetry run python -m app" Enter
