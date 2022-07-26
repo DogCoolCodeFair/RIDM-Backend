@@ -1,7 +1,6 @@
-from fastapi import APIRouter, Request, Query
-from starlette.responses import JSONResponse
-
+from fastapi import APIRouter, Query, Request
 from models import User, UserRole
+from starlette.responses import JSONResponse
 
 test_router = APIRouter()
 
