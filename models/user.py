@@ -20,4 +20,4 @@ class Doctor(User):
 
 
 class Patient(User):
-    pass
+    pass # 건강 보험증 번호, 등 산정특례에 필요한 애들 넣어야 하나요? @331leo
