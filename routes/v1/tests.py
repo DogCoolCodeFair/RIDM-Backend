@@ -11,7 +11,14 @@ test_router = APIRouter()
 
 @test_router.get("/doctor_echo", response_model=Doctor)
 async def echo_doctor(
-    id: str, name: str, phoneNumber: str, isDoctor: bool, doctorNumber: int, hospital: str, hospitalPhone: str, issueDate: date,
+    id: str,
+    name: str,
+    phoneNumber: str,
+    isDoctor: bool,
+    doctorNumber: int,
+    hospital: str,
+    hospitalPhone: str,
+    issueDate: date,
 ):
     return Doctor(
         id=id,
@@ -24,9 +31,15 @@ async def echo_doctor(
         issueDate=issueDate,
     )
 
+
 @test_router.get("/patient_echo", response_model=Patient)
 async def echo_patient(
-    id: str, name: str, phoneNumber: str, isDoctor: bool, healthInsuranceNumber: int, doctor: str,
+    id: str,
+    name: str,
+    phoneNumber: str,
+    isDoctor: bool,
+    healthInsuranceNumber: int,
+    doctor: str,
 ):
     return Patient(
         id=id,
@@ -36,6 +49,7 @@ async def echo_patient(
         healthInsuranceNumber=healthInsuranceNumber,
         doctor=doctor,
     )
+
 
 @test_router.get("/benifit_echo", response_model=Benefit)
 async def echo_benifit(
@@ -52,9 +66,17 @@ async def echo_benifit(
     print(obj)
     return Benefit.parse_obj(obj)
 
+
 @test_router.get("/disease_echo", response_model=Disease)
 async def echo_disease(
-    id: str, name: str, subname: str, symptoms: List[str], affected: List[str], supported: bool, required: bool, code: str
+    id: str,
+    name: str,
+    subname: str,
+    symptoms: List[str],
+    affected: List[str],
+    supported: bool,
+    required: bool,
+    code: str,
 ):
     obj = {
         "id": id,
@@ -69,10 +91,9 @@ async def echo_disease(
     print(obj)
     return Disease.parse_obj(obj)
 
+
 @test_router.get("/symptom_echo", response_model=Symptom)
-async def echo_symptom(
-    name: str, date: date, time: time, symptoms: str
-):
+async def echo_symptom(name: str, date: date, time: time, symptoms: str):
     obj = {
         "name": name,
         "date": date,

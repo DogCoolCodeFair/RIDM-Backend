@@ -4,7 +4,7 @@ from datetime import date, time
 from pydantic import BaseModel, Field
 
 
-class Symptom(BaseModel): # 증상들
+class Symptom(BaseModel):  # 증상들
     name: str = Field(..., description="증상 명", example="과도한 웃음")
     date: date = Field(..., description="날짜", example=date.today())
     time: time = Field(..., description="시간", example=time.now())
