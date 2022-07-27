@@ -4,6 +4,7 @@ from fastapi import APIRouter, Query, Request
 from models import User, Disease, Benefit, Symptom, Doctor, Patient
 from starlette.responses import JSONResponse
 
+import utils.database as db
 from models.benifit import DiseaseType
 
 test_router = APIRouter()
@@ -20,7 +21,7 @@ async def echo_doctor(
     hospitalPhone: str,
     issueDate: date,
 ):
-    return Doctor(
+    doc = Doctor(
         id=id,
         name=name,
         phoneNumber=phoneNumber,
@@ -30,6 +31,8 @@ async def echo_doctor(
         hospitalPhone=hospitalPhone,
         issueDate=issueDate,
     )
+    await db.insert_one("users", doc.dict())
+    return doc
 
 
 @test_router.get("/patient_echo", response_model=Patient)
