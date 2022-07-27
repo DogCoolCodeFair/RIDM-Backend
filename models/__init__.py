@@ -3,5 +3,6 @@ from .user import User, Doctor, Patient
 from .disease import Disease
 from .benifit import Benefit
 from .symptom import Symptom
+from .auth import LoginResponse
 
-__all__ = [User, Disease, Benefit, Symptom]
+__all__ = [User, Disease, Benefit, Symptom, LoginResponse, Doctor, Patient]
