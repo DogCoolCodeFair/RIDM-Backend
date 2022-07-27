@@ -1,14 +1,15 @@
 from datetime import date, time
 from typing import List
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
+from fastapi.security import HTTPBearer
 from models import User, Disease, Benefit, Symptom, Doctor, Patient
 from starlette.responses import JSONResponse
 
 import utils.database as db
 from models.benifit import DiseaseType
+from utils.jwt import verify_token
 
 test_router = APIRouter()
-
 
 @test_router.get("/doctor_echo", response_model=Doctor)
 async def echo_doctor(
@@ -105,3 +106,9 @@ async def echo_symptom(name: str, date: date, time: time, symptoms: str):
     }
     print(obj)
     return Symptom.parse_obj(obj)
+
+
+@test_router.get("/auth_test", response_model=Doctor)
+async def auth_test(id: str = Depends(verify_token)):
+    print(id)
+    return Doctor.parse_obj(await db.find_one("users", "id",id))
