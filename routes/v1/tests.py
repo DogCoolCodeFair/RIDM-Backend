@@ -67,7 +67,6 @@ async def echo_benifit(
         "detail": detail,
         "signature": signature,
     }
-    print(obj)
     return Benefit.parse_obj(obj)
 
 
@@ -92,7 +91,6 @@ async def echo_disease(
         "required": required,
         "code": code,
     }
-    print(obj)
     return Disease.parse_obj(obj)
 
 
@@ -104,11 +102,9 @@ async def echo_symptom(name: str, date: date, time: time, symptoms: str):
         "time": time,
         "symptoms": symptoms,
     }
-    print(obj)
     return Symptom.parse_obj(obj)
 
 
 @test_router.get("/auth_test", response_model=Doctor)
 async def auth_test(id: str = Depends(verify_token)):
-    print(id)
     return Doctor.parse_obj(await db.find_one("users", "id",id))
