@@ -1,14 +1,83 @@
+from datetime import date, time
+from typing import List
 from fastapi import APIRouter, Query, Request
-from models import User, UserRole
+from models import User, Disease, Benefit, Symptom, Doctor, Patient
 from starlette.responses import JSONResponse
+
+from models.benifit import DiseaseType
 
 test_router = APIRouter()
 
 
-@test_router.get("/{id}", response_model=User)
-async def echo_data(
-    id: str, name: str, role: UserRole = Query(UserRole.patient, description="유저 타입")
+@test_router.get("/doctor_echo", response_model=Doctor)
+async def echo_doctor(
+    id: str, name: str, phoneNumber: str, isDoctor: bool, doctorNumber: int, hospital: str, hospitalPhone: str, issueDate: date,
 ):
-    obj = {"id": id, "role": role, "name": name}
+    return Doctor(
+        id=id,
+        name=name,
+        phoneNumber=phoneNumber,
+        isDoctor=isDoctor,
+        doctorNumber=doctorNumber,
+        hospital=hospital,
+        hospitalPhone=hospitalPhone,
+        issueDate=issueDate,
+    )
+
+@test_router.get("/patient_echo", response_model=Patient)
+async def echo_patient(
+    id: str, name: str, phoneNumber: str, isDoctor: bool, healthInsuranceNumber: int, doctor: str,
+):
+    return Patient(
+        id=id,
+        name=name,
+        phoneNumber=phoneNumber,
+        isDoctor=isDoctor,
+        healthInsuranceNumber=healthInsuranceNumber,
+        doctor=doctor,
+    )
+
+@test_router.get("/benifit_echo", response_model=Benefit)
+async def echo_benifit(
+    id: str, memo: str, date: date, type: DiseaseType, detail: str, signature: str
+):
+    obj = {
+        "id": id,
+        "memo": memo,
+        "date": date,
+        "type": type,
+        "detail": detail,
+        "signature": signature,
+    }
     print(obj)
-    return User.parse_obj(obj)
+    return Benefit.parse_obj(obj)
+
+@test_router.get("/disease_echo", response_model=Disease)
+async def echo_disease(
+    id: str, name: str, subname: str, symptoms: List[str], affected: List[str], supported: bool, required: bool, code: str
+):
+    obj = {
+        "id": id,
+        "name": name,
+        "subname": subname,
+        "symptoms": symptoms,
+        "affected": affected,
+        "supported": supported,
+        "required": required,
+        "code": code,
+    }
+    print(obj)
+    return Disease.parse_obj(obj)
+
+@test_router.get("/symptom_echo", response_model=Symptom)
+async def echo_symptom(
+    name: str, date: date, time: time, symptoms: str
+):
+    obj = {
+        "name": name,
+        "date": date,
+        "time": time,
+        "symptoms": symptoms,
+    }
+    print(obj)
+    return Symptom.parse_obj(obj)
