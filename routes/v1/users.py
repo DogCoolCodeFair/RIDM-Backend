@@ -72,7 +72,7 @@ async def get_user(user: str, requester: str = Depends(verify_doctor)):
     user: Patient = await db.get_user(user)
     if user.isDoctor:
         raise HTTPException(
-            status_code=500, detail="Query ID Should be Patient to search user"
+            status_code=400, detail="Query ID Should be Patient to search user"
         )
     return user
 
