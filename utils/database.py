@@ -26,6 +26,13 @@ async def find_one(collection, key, value):
     document.pop("_id") if document else None
     return document
 
+async def find_many(collection, key, value):
+    query = {key: {"$eq": value}}
+    documents = []
+    async for document in Database.get_collection(collection).find(query):
+        document.pop("_id")
+        documents.append(document)
+    return documents
 
 async def update_one(collection, key, value, data):
     query = {key: {"$eq": value}}
