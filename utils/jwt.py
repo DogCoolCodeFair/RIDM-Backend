@@ -4,14 +4,14 @@ import jwt
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-
+from datetime import datetime
 import utils.database as db
 
 load_dotenv()
 
 
 async def generate_token(id: str):
-    return jwt.encode({"id": id}, getenv("JWT_SECRET"), algorithm="HS256")
+    return jwt.encode({"id": id, "createdAt": datetime.now().timestamp()}, getenv("JWT_SECRET"), algorithm="HS256")
 
 
 async def verify_token(
