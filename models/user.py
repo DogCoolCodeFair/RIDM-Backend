@@ -1,10 +1,13 @@
-from typing import List
 from datetime import date
 from enum import Enum
+from typing import List
 
 from pydantic import BaseModel, Field
-from .symptom import Symptom
+
 from .disease import Disease
+from .symptom import Symptom
+
+
 class User(BaseModel):
     id: str = Field(..., description="유저 아이디", example="iamdoctor")
     isDoctor: bool = Field(..., description="의사 여부", example=False)

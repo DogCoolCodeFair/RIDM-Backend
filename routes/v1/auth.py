@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Form, HTTPException, Query, Request
-
-from models import LoginResponse
 from hashlib import sha256
 
+from fastapi import APIRouter, Form, HTTPException, Query, Request
+
 import utils.database as db
+from models import LoginResponse
 from utils.jwt import generate_token
+
 auth_router = APIRouter()
+
 
 @auth_router.post("/login", response_model=LoginResponse)
 async def login(id: str = Form(...), password: str = Form(...)):

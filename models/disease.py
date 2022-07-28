@@ -1,11 +1,11 @@
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
 
 class Disease(BaseModel):
-    id: str = Field(..., description="질병코드", example="Q93.5")
+    id: Optional[str] = Field(..., description="질병코드", example="Q93.5")
     name: str = Field(..., description="질병 이름", example="엔젤만증후군")
     subname: str = Field(
         ..., description="질병의 풀네임", example="4q21 microdeletion syndrome"

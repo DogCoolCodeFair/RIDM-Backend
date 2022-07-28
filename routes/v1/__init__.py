@@ -1,10 +1,13 @@
 from fastapi import APIRouter
 
-from .users import user_router
 from .auth import auth_router
+from .symptoms import symptom_router
+from .users import user_router
 
 v1_router = APIRouter()
 
 v1_router.include_router(user_router, prefix="/user", tags=["user"])
 
 v1_router.include_router(auth_router, prefix="/auth", tags=["auth"])
+
+v1_router.include_router(symptom_router, prefix="/symptom", tags=["symptom"])

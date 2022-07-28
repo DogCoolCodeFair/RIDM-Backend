@@ -1,15 +1,17 @@
 from datetime import date, time
 from typing import List, Union
+
 from fastapi import APIRouter, Depends, Form, Query, Request
 from fastapi.security import HTTPBearer
-from models import User, Disease, Benefit, Symptom, Doctor, Patient
 from starlette.responses import JSONResponse
 
 import utils.database as db
-from models.benifit import DiseaseType
+from models import Benefit, Disease, Doctor, Patient, Symptom, User
+from models.benefit import DiseaseType
 from utils.jwt import verify_token
 
 user_router = APIRouter()
+
 
 @user_router.get("/add_doctor", response_model=Doctor)
 async def add_doctor(
@@ -51,7 +53,10 @@ async def add_patient(patient: Patient):
     await db.insert_one("users", patient.dict())
     return patient
 
-@user_router.get("/@me", response_model=Union[Doctor, Patient], response_model_exclude_unset=True)
+
+@user_router.get(
+    "/@me", response_model=Union[Doctor, Patient], response_model_exclude_unset=True
+)
 async def get_me(id: str = Depends(verify_token)):
     return await db.get_user(id)
 
