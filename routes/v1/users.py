@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Union
+from typing import List, Union
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -64,6 +64,11 @@ async def add_patient(patient: Patient):
 async def get_me(id: str = Depends(verify_token)):
     return await db.get_user(id)
 
+@user_router.get("/patients", response_model=List[Patient], description="담당 환자 목록을 조회합니다. (의사만 접근 가능)")
+async def get_patients(requester: str = Depends(verify_doctor)):
+    doctor: Doctor = await db.get_user(requester)
+    return [Patient.parse_obj(document) for document in (await db.find_many("users", "doctor", doctor.id))]
+
 
 @user_router.get(
     "/{user}", response_model=Patient, description="{user}의 정보를 조회합니다. (의사만 접근 가능)"
@@ -75,6 +80,7 @@ async def get_user(user: str, requester: str = Depends(verify_doctor)):
             status_code=400, detail="Query ID Should be Patient to search user"
         )
     return user
+
 
 
 # @test_router.get("/disease_echo", response_model=Disease)
