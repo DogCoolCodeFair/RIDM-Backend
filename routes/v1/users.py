@@ -9,9 +9,9 @@ import utils.database as db
 from models.benifit import DiseaseType
 from utils.jwt import verify_token
 
-test_router = APIRouter()
+user_router = APIRouter()
 
-@test_router.get("/add_doctor", response_model=Doctor)
+@user_router.get("/add_doctor", response_model=Doctor)
 async def add_doctor(
     id: str,
     name: str,
@@ -36,7 +36,7 @@ async def add_doctor(
     return doc
 
 
-@test_router.post("/add_patient", response_model=Patient)
+@user_router.post("/add_patient", response_model=Patient)
 async def add_patient(patient: Patient):
     # pat = Patient(
     #     id=id,
@@ -51,7 +51,7 @@ async def add_patient(patient: Patient):
     await db.insert_one("users", patient.dict())
     return patient
 
-@test_router.get("/@me", response_model=Union[Doctor, Patient], response_model_exclude_unset=True)
+@user_router.get("/@me", response_model=Union[Doctor, Patient], response_model_exclude_unset=True)
 async def get_me(id: str = Depends(verify_token)):
     return await db.get_user(id)
 
