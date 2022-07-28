@@ -25,11 +25,16 @@ async def verify_token(
 
 
 async def verify_doctor(
-    id: str, credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())
+    credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())
 ):
-    if (await db.find_one("users", "id", id)).get("isDoctor"):
-        return id
-    else:
-        raise HTTPException(
-            status_code=403, detail="Should be Doctor to access this endpoint"
-        )
+    token = credentials.credentials
+    try:
+        id = (jwt.decode(token, getenv("JWT_SECRET"), algorithms=["HS256"])).get("id")
+        if (await db.find_one("users", "id", id)).get("isDoctor"):
+            return id
+        else:
+            raise HTTPException(
+                status_code=403, detail="Should be Doctor to access this endpoint"
+            )
+    except jwt.exceptions.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")

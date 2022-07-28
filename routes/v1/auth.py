@@ -9,7 +9,7 @@ from utils.jwt import generate_token
 auth_router = APIRouter()
 
 
-@auth_router.post("/login", response_model=LoginResponse)
+@auth_router.post("/login", response_model=LoginResponse, description="ID/PW로 로그인해 엑세스 토큰을 발행받습니다.")
 async def login(id: str = Form(...), password: str = Form(...)):
     authdata = await db.find_one("auth", "id", id)
     if authdata:

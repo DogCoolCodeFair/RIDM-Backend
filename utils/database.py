@@ -34,6 +34,12 @@ async def update_one(collection, key, value, data):
     await Database.get_collection(collection).replace_one(query, data)
     return await find_one(collection, key, value)
 
+async def get_all_documents(collection):
+    documents = []
+    async for document in Database.get_collection(collection).find():
+        document.pop("_id")
+        documents.append(document)
+    return documents
 
 async def get_user(id) -> Union[Patient, Doctor]:
     data = await find_one("users", "id", id)

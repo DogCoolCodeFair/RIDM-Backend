@@ -8,12 +8,12 @@ from starlette.responses import JSONResponse
 import utils.database as db
 from models import Benefit, Disease, Doctor, Patient, Symptom, User
 from models.benefit import DiseaseType
-from utils.jwt import verify_token
+from utils.jwt import verify_doctor, verify_token
 
 user_router = APIRouter()
 
 
-@user_router.get("/add_doctor", response_model=Doctor)
+@user_router.get("/add_doctor", response_model=Doctor, description="의사 회원가입 API / 프론트 구현 안함")
 async def add_doctor(
     id: str,
     name: str,
@@ -38,7 +38,7 @@ async def add_doctor(
     return doc
 
 
-@user_router.post("/add_patient", response_model=Patient)
+@user_router.post("/add_patient", response_model=Patient, description="환자 회원가입 API / 프론트 구현 안함")
 async def add_patient(patient: Patient):
     # pat = Patient(
     #     id=id,
@@ -55,26 +55,22 @@ async def add_patient(patient: Patient):
 
 
 @user_router.get(
-    "/@me", response_model=Union[Doctor, Patient], response_model_exclude_unset=True
+    "/@me", response_model=Union[Doctor, Patient], response_model_exclude_unset=True, description="자기 자신의 정보를 조회합니다."
 )
 async def get_me(id: str = Depends(verify_token)):
     return await db.get_user(id)
 
-@user_router.get("/{user}", response_model=Patient)
+@user_router.get("/{user}", response_model=Patient, description="{user}의 정보를 조회합니다. (의사만 접근 가능)")
 async def get_user(
-    user: str, requester: str = Depends(verify_token)
+    user: str, requester: str = Depends(verify_doctor)
 ):
-    if (await db.get_user(requester)).isDoctor:
-        user: Patient = await db.get_user(user)
-        if user.isDoctor:
-            raise HTTPException(
-                status_code=500, detail="Query ID Should be Patient to search user"
-            )
-        return user
-    else:
+    user: Patient = await db.get_user(user)
+    if user.isDoctor:
         raise HTTPException(
-            status_code=403, detail="Should be Doctor to access this endpoint"
+            status_code=500, detail="Query ID Should be Patient to search user"
         )
+    return user
+
 
 # @test_router.get("/disease_echo", response_model=Disease)
 # async def echo_disease(
