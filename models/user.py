@@ -1,11 +1,13 @@
+from typing import List
 from datetime import date
 from enum import Enum
 
 from pydantic import BaseModel, Field
-
+from .symptom import Symptom
+from .disease import Disease
 class User(BaseModel):
     id: str = Field(..., description="유저 아이디", example="iamdoctor")
-    isDoctor: bool = Field(..., description="의사 여부", example=True)
+    isDoctor: bool = Field(..., description="의사 여부", example=False)
     name: str = Field(..., description="유저 이름", example="홍길동")
     phoneNumber: str = Field(..., description="유저 휴대전화번호", example="01012345678")
     # 이런식으로 모델 쭉쭉 만들면 됩니다. pydantic에 보면 EmailStr 타입 등 프리셋 있으니 잘 찾아보시고 모델 구축하시면 됩니다.
@@ -23,4 +25,6 @@ class Doctor(User):
 class Patient(User):
     healthInsuranceNumber: int = Field(..., description="건강보험번호", example="532423432")
     doctor: str = Field(..., description="담당 의사 id", example="doctor1")
+    symptoms: List[Symptom] = Field(..., description="증상들")
+    diseases: List[Disease] = Field(..., description="질병들")
     pass  # 건강 보험증 번호, 등 산정특례에 필요한 애들 넣어야 하나요? @331leo

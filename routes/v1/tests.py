@@ -1,6 +1,6 @@
 from datetime import date, time
-from typing import List
-from fastapi import APIRouter, Depends, Query, Request
+from typing import List, Union
+from fastapi import APIRouter, Depends, Form, Query, Request
 from fastapi.security import HTTPBearer
 from models import User, Disease, Benefit, Symptom, Doctor, Patient
 from starlette.responses import JSONResponse
@@ -11,8 +11,8 @@ from utils.jwt import verify_token
 
 test_router = APIRouter()
 
-@test_router.get("/doctor_echo", response_model=Doctor)
-async def echo_doctor(
+@test_router.get("/add_doctor", response_model=Doctor)
+async def add_doctor(
     id: str,
     name: str,
     phoneNumber: str,
@@ -36,23 +36,29 @@ async def echo_doctor(
     return doc
 
 
-@test_router.get("/patient_echo", response_model=Patient)
-async def echo_patient(
-    id: str,
-    name: str,
-    phoneNumber: str,
-    isDoctor: bool,
-    healthInsuranceNumber: int,
-    doctor: str,
+@test_router.post("/add_patient", response_model=Patient)
+async def add_patient(
+    symptoms: List[Symptom],
+    diseases: List[Disease],
+    id: str = Form(...),
+    name: str= Form(...),
+    phoneNumber: str= Form(...),
+    isDoctor: bool= Form(...),
+    healthInsuranceNumber: int= Form(...),
+    doctor: str= Form(...)
 ):
-    return Patient(
+    pat = Patient(
         id=id,
         name=name,
         phoneNumber=phoneNumber,
         isDoctor=isDoctor,
         healthInsuranceNumber=healthInsuranceNumber,
         doctor=doctor,
+        symptoms=symptoms,
+        diseases=diseases
     )
+    await db.insert_one("users", pat.dict())
+    return pat
 
 
 @test_router.get("/benifit_echo", response_model=Benefit)
@@ -105,6 +111,6 @@ async def echo_symptom(name: str, date: date, time: time, symptoms: str):
     return Symptom.parse_obj(obj)
 
 
-@test_router.get("/auth_test", response_model=Doctor)
-async def auth_test(id: str = Depends(verify_token)):
-    return Doctor.parse_obj(await db.find_one("users", "id",id))
+@test_router.get("/@me", response_model=Union[Doctor, Patient], response_model_exclude_unset=True)
+async def get_me(id: str = Depends(verify_token)):
+    return await db.get_user(id)
