@@ -1,19 +1,18 @@
-from datetime import date, time
-from typing import List, Union
+from datetime import date
+from typing import Union
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request
-from fastapi.security import HTTPBearer
-from starlette.responses import JSONResponse
+from fastapi import APIRouter, Depends, HTTPException
 
 import utils.database as db
-from models import Benefit, Disease, Doctor, Patient, Symptom, User
-from models.benefit import DiseaseType
+from models import Doctor, Patient
 from utils.jwt import verify_doctor, verify_token
 
 user_router = APIRouter()
 
 
-@user_router.get("/add_doctor", response_model=Doctor, description="의사 회원가입 API / 프론트 구현 안함")
+@user_router.get(
+    "/add_doctor", response_model=Doctor, description="의사 회원가입 API / 프론트 구현 안함"
+)
 async def add_doctor(
     id: str,
     name: str,
@@ -38,7 +37,9 @@ async def add_doctor(
     return doc
 
 
-@user_router.post("/add_patient", response_model=Patient, description="환자 회원가입 API / 프론트 구현 안함")
+@user_router.post(
+    "/add_patient", response_model=Patient, description="환자 회원가입 API / 프론트 구현 안함"
+)
 async def add_patient(patient: Patient):
     # pat = Patient(
     #     id=id,
@@ -55,15 +56,19 @@ async def add_patient(patient: Patient):
 
 
 @user_router.get(
-    "/@me", response_model=Union[Doctor, Patient], response_model_exclude_unset=True, description="자기 자신의 정보를 조회합니다."
+    "/@me",
+    response_model=Union[Doctor, Patient],
+    response_model_exclude_unset=True,
+    description="자기 자신의 정보를 조회합니다.",
 )
 async def get_me(id: str = Depends(verify_token)):
     return await db.get_user(id)
 
-@user_router.get("/{user}", response_model=Patient, description="{user}의 정보를 조회합니다. (의사만 접근 가능)")
-async def get_user(
-    user: str, requester: str = Depends(verify_doctor)
-):
+
+@user_router.get(
+    "/{user}", response_model=Patient, description="{user}의 정보를 조회합니다. (의사만 접근 가능)"
+)
+async def get_user(user: str, requester: str = Depends(verify_doctor)):
     user: Patient = await db.get_user(user)
     if user.isDoctor:
         raise HTTPException(

@@ -25,7 +25,7 @@ async def verify_token(
 
 
 async def verify_doctor(
-    credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())
+    credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
 ):
     token = credentials.credentials
     try:

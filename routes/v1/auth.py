@@ -1,6 +1,6 @@
 from hashlib import sha256
 
-from fastapi import APIRouter, Form, HTTPException, Query, Request
+from fastapi import APIRouter, Form, HTTPException
 
 import utils.database as db
 from models import LoginResponse
@@ -9,7 +9,9 @@ from utils.jwt import generate_token
 auth_router = APIRouter()
 
 
-@auth_router.post("/login", response_model=LoginResponse, description="ID/PW로 로그인해 엑세스 토큰을 발행받습니다.")
+@auth_router.post(
+    "/login", response_model=LoginResponse, description="ID/PW로 로그인해 엑세스 토큰을 발행받습니다."
+)
 async def login(id: str = Form(...), password: str = Form(...)):
     authdata = await db.find_one("auth", "id", id)
     if authdata:
