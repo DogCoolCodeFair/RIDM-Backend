@@ -1,7 +1,7 @@
 from datetime import date, time
 from typing import List, Union
 
-from fastapi import APIRouter, Depends, Form, Query, Request
+from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request
 from fastapi.security import HTTPBearer
 from starlette.responses import JSONResponse
 
@@ -60,6 +60,21 @@ async def add_patient(patient: Patient):
 async def get_me(id: str = Depends(verify_token)):
     return await db.get_user(id)
 
+@user_router.get("/{user}", response_model=Patient)
+async def get_user(
+    user: str, requester: str = Depends(verify_token)
+):
+    if (await db.get_user(requester)).isDoctor:
+        user: Patient = await db.get_user(user)
+        if user.isDoctor:
+            raise HTTPException(
+                status_code=500, detail="Query ID Should be Patient to search user"
+            )
+        return user
+    else:
+        raise HTTPException(
+            status_code=403, detail="Should be Doctor to access this endpoint"
+        )
 
 # @test_router.get("/disease_echo", response_model=Disease)
 # async def echo_disease(
