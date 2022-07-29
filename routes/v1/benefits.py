@@ -31,7 +31,7 @@ async def request(disease: Disease, user: str = Depends(verify_token)):
 async def process(
     benefitId: str,
     memo: str = Query(..., description="의사 소견"),
-    type: DiseaseType = Query(DiseaseType.other, description="질환 종류"),
+    type: DiseaseType = Query(..., description="질환 종류"),
     methodIndex: int = Query(..., description="진단 방법 인덱스, 예) 유전학적 검사 -> 2"),
     signature: str = Query(..., description="의사 서명 Base64"),
     user: str = Depends(verify_doctor),
