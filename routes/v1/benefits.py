@@ -29,7 +29,7 @@ async def request(disease: Disease, user: str = Depends(verify_token)):
 
 @benefit_router.post("/process/{benefitId}", response_model=Benefit)
 async def process(
-    benefitId: str,
+    benefitId: int,
     memo: str = Query(..., description="의사 소견"),
     type: DiseaseType = Query(..., description="질환 종류"),
     methodIndex: int = Query(..., description="진단 방법 인덱스, 예) 유전학적 검사 -> 2"),
@@ -44,7 +44,7 @@ async def process(
     return await db.update_one("benefits", "benefitId", benefit.id, benefit.dict())
 
 @benefit_router.post("/reject/{benefitId}", response_model=Benefit)
-async def reject(benefitId:str, user: str = Depends(verify_doctor)):
+async def reject(benefitId:int, user: str = Depends(verify_doctor)):
     benefit = await db.get_benefit(benefitId)
     if benefit.status != BenefitStatus.waiting:
         raise HTTPException(status_code=400, detail="Benefit is not waiting")

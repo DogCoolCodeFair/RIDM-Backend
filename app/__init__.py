@@ -18,7 +18,7 @@ app_config = {
     "redoc_url": "/docs/redoc",
     "docs_url": "/docs/swagger",
 }
-print(cors_origins)
+
 app = FastAPI(**app_config)
 
 
