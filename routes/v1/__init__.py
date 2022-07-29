@@ -17,3 +17,4 @@ v1_router.include_router(symptom_router, prefix="/symptom", tags=["symptom"])
 v1_router.include_router(disease_router, prefix="/disease", tags=["disease"])
 
 v1_router.include_router(benefit_router, prefix="/benefit", tags=["benefit"])
+

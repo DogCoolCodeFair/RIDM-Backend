@@ -3,7 +3,7 @@ import os
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 
 from routes.v1 import v1_router
@@ -18,13 +18,15 @@ app_config = {
     "redoc_url": "/docs/redoc",
     "docs_url": "/docs/swagger",
 }
-
+print(cors_origins)
 app = FastAPI(**app_config)
 
 
 @app.get("/", include_in_schema=False)
 async def route_root():
     return RedirectResponse(url="/docs/swagger")
+
+app.include_router(v1_router, prefix="/v1")
 
 
 app.add_middleware(
@@ -35,4 +37,3 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(v1_router, prefix="/v1")
