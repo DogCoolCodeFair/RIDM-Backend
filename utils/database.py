@@ -4,6 +4,7 @@ from typing import Union
 
 from dotenv import load_dotenv
 from fastapi import HTTPException
+from models.benefit import Benefit
 
 from models.user import Doctor, Patient
 
@@ -26,6 +27,7 @@ async def find_one(collection, key, value):
     document.pop("_id") if document else None
     return document
 
+
 async def find_many(collection, key, value):
     query = {key: {"$eq": value}}
     documents = []
@@ -33,6 +35,7 @@ async def find_many(collection, key, value):
         document.pop("_id")
         documents.append(document)
     return documents
+
 
 async def update_one(collection, key, value, data):
     query = {key: {"$eq": value}}
@@ -48,6 +51,13 @@ async def get_all_documents(collection):
         documents.append(document)
     return documents
 
+
+async def get_benefit(benefitId) -> Benefit:
+    data = await find_one("benefits", "benefitId", benefitId)
+    if data:
+        return Benefit(**data)
+    else:
+        raise HTTPException(status_code=404, detail="Benefit not found")
 
 async def get_user(id) -> Union[Patient, Doctor]:
     data = await find_one("users", "id", id)

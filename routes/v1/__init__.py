@@ -1,10 +1,10 @@
 from fastapi import APIRouter
 
 from .auth import auth_router
+from .benefits import benefit_router
 from .diseases import disease_router
 from .symptoms import symptom_router
 from .users import user_router
-from .benefits import benefit_router
 
 v1_router = APIRouter()
 

@@ -7,19 +7,19 @@ from utils.jwt import verify_doctor, verify_token
 
 symptom_router = APIRouter()
 
+
 @symptom_router.post(
     "/@me/insert_symptom",
     response_model=Patient,
     description="자신에게 증상정보를 추가합니다.",
 )
-async def insert_symptom(
-    symptom: Symptom, user: str = Depends(verify_token)
-):
+async def insert_symptom(symptom: Symptom, user: str = Depends(verify_token)):
     user: Patient = await db.get_user(user)
     if user.isDoctor:
         raise HTTPException(status_code=400, detail="Should be Patient to add symptom")
     user.symptoms.append(symptom)
     return await db.update_one("users", "id", user.id, user.dict())
+
 
 @symptom_router.post(
     "/{user}/insert_symptom",

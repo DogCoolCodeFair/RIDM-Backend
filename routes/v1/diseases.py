@@ -1,10 +1,10 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
-from models.user import Patient
 
 import utils.database as db
 from models.disease import Disease
+from models.user import Patient
 from utils.jwt import verify_doctor
 
 disease_router = APIRouter()
@@ -16,6 +16,7 @@ disease_router = APIRouter()
 async def listall():
     documents = await db.get_all_documents("diseases")
     return [Disease.parse_obj(document) for document in documents]
+
 
 @disease_router.post(
     "/{user}/insert_disease",

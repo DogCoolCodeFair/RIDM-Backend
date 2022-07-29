@@ -1,31 +1,68 @@
+from datetime import date
 from pydoc import doc
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
-from models.benefit import Benefit, BenefitStatus
-from models.user import Patient
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 import utils.database as db
+from models.benefit import Benefit, BenefitStatus, DiseaseType
 from models.disease import Disease
+from models.user import Patient
 from utils.jwt import verify_doctor, verify_token
 
 benefit_router = APIRouter()
 
 
-@benefit_router.post(
-    "/request", response_model=Benefit, description="산정특례를 신청합니다."
-)
-async def request(disease: Disease,user: str = Depends(verify_token)):
+@benefit_router.post("/request", response_model=Benefit, description="산정특례를 신청합니다.")
+async def request(disease: Disease, user: str = Depends(verify_token)):
     user: Patient = await db.get_user(user)
     if user.isDoctor:
-        raise HTTPException(status_code=403, detail="Should be Patient to access this endpoint")
-    benefit = Benefit(status=BenefitStatus.waiting, disease=disease, userId=user.id)
+        raise HTTPException(
+            status_code=403, detail="Should be Patient to access this endpoint"
+        )
+    benefit = Benefit(
+        status=BenefitStatus.waiting, disease=disease, userId=user.id, date=date.today()
+    )
     await db.insert_one("benefits", benefit.dict())
     return benefit
 
-@benefit_router.get("/{user}", response_model=List[Benefit], description="특정 환자가 신청한 대기중인 산정특례를 반환합니다. (의사만 접근 가능합니다)")
-async def find_benefit(user:str, requester: str = Depends(verify_doctor)):
+
+@benefit_router.post("/process/{benefitId}", response_model=Benefit)
+async def process(
+    benefitId: str,
+    memo: str = Query(..., description="의사 소견"),
+    type: DiseaseType = Query(DiseaseType.other, description="질환 종류"),
+    methodIndex: int = Query(..., description="진단 방법 인덱스, 예) 유전학적 검사 -> 2"),
+    signature: str = Query(..., description="의사 서명 Base64"),
+    user: str = Depends(verify_doctor),
+):
+    benefit = await db.get_benefit(benefitId)
+    if benefit.status != BenefitStatus.waiting:
+        raise HTTPException(status_code=400, detail="Benefit is not waiting")
+    benefit.memo, benefit.type, benefit.methodIndex, benefit.signature = memo, type, methodIndex, signature
+    benefit.status = BenefitStatus.approved
+    return await db.update_one("benefits", "benefitId", benefit.id, benefit.dict())
+
+@benefit_router.post("/reject/{benefitId}", response_model=Benefit)
+async def reject(benefitId:str, user: str = Depends(verify_doctor)):
+    benefit = await db.get_benefit(benefitId)
+    if benefit.status != BenefitStatus.waiting:
+        raise HTTPException(status_code=400, detail="Benefit is not waiting")
+    benefit.status = BenefitStatus.rejected
+    return await db.update_one("benefits", "benefitId", benefit.id, benefit.dict())
+
+@benefit_router.get(
+    "/{user}",
+    response_model=List[Benefit],
+    description="특정 환자가 신청한 대기중인 산정특례를 반환합니다. (의사만 접근 가능합니다)",
+)
+async def find_benefit(user: str, requester: str = Depends(verify_doctor)):
     user: Patient = await db.get_user(user)
     if user.isDoctor:
-        raise HTTPException(status_code=403, detail="Should be Patient to query benefits")
-    return [Benefit.parse_obj(document) for document in await db.find_many("benefits", "userId", user.id)]
+        raise HTTPException(
+            status_code=403, detail="Should be Patient to query benefits"
+        )
+    return [
+        Benefit.parse_obj(document)
+        for document in await db.find_many("benefits", "userId", user.id)
+    ]
