@@ -16,7 +16,7 @@ async def login(id: str = Form(...), password: str = Form(...)):
     authdata = await db.find_one("auth", "id", id)
     if authdata:
         if sha256(password.encode()).hexdigest() == authdata["hash"]:
-            return LoginResponse(access_token=await generate_token(id))
+            return LoginResponse(access_token=await generate_token(id), user = await db.get_user(id))
         else:
             raise HTTPException(status_code=401, detail="Invalid password")
     else:
