@@ -36,6 +36,13 @@ async def find_many(collection, key, value):
         documents.append(document)
     return documents
 
+async def search_db(collection, key, value):
+    query = {key: {"$regex": value}}
+    documents = []
+    async for document in Database.get_collection(collection).find(query):
+        document.pop("_id")
+        documents.append(document)
+    return documents
 
 async def update_one(collection, key, value, data):
     query = {key: {"$eq": value}}

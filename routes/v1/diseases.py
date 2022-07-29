@@ -17,6 +17,11 @@ async def listall():
     documents = await db.get_all_documents("diseases")
     return [Disease.parse_obj(document) for document in documents]
 
+@disease_router.get("/search", response_model=List[Disease], description="질환 이름으로 검색합니다.")
+async def search(name: str):
+    documents = await db.search_db("diseases", "name", name)
+    return [Disease.parse_obj(document) for document in documents]
+
 
 @disease_router.post(
     "/{user}/insert_disease",
