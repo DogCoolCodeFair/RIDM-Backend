@@ -1,13 +1,16 @@
 from datetime import date, datetime
+import io
 from pydoc import doc
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from starlette.responses import StreamingResponse
 
 import utils.database as db
 from models.benefit import Benefit, BenefitStatus, DiseaseType
 from models.disease import Disease
 from models.user import Patient
+from utils.image import create_image_document
 from utils.jwt import verify_doctor, verify_token
 
 benefit_router = APIRouter()
@@ -82,13 +85,25 @@ async def my_benefit(user: str = Depends(verify_token)):
         for document in await db.find_many("benefits", "userId", user.id)
     ]
 
-
 @benefit_router.get(
     "/id/{benefitId}", response_model=Benefit, description="산정특례를 가져옵니다."
 )
 async def get_benefit(benefitId: int, requester: str = Depends(verify_token)):
     benefit = await db.get_benefit(benefitId)
     return Benefit.parse_obj(benefit)
+
+@benefit_router.get(
+    "/id/{benefitId}/document", description="산정특례 신청서 이미지 가져오기"
+)
+async def get_benefit_document(benefitId: int, requester: str = Depends(verify_token)):
+    benefit = await db.get_benefit(benefitId)
+    patient = await db.get_user(benefit.userId)
+    doctor = await db.get_user(patient.doctor)
+    image = await create_image_document(benefit, patient, doctor)
+    byteobj = io.BytesIO()
+    image.save(byteobj, "PNG")
+    byteobj.seek(0)
+    return StreamingResponse(byteobj, media_type="image/png")
 
 
 @benefit_router.get(
