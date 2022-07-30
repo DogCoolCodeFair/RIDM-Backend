@@ -10,7 +10,7 @@ import utils.database as db
 from models.benefit import Benefit, BenefitStatus, DiseaseType
 from models.disease import Disease
 from models.user import Patient
-from utils.image import create_image_document
+from utils.image import create_image_diagnosis, create_image_document
 from utils.jwt import verify_doctor, verify_token
 
 benefit_router = APIRouter()
@@ -93,6 +93,19 @@ async def get_benefit(benefitId: int, requester: str = Depends(verify_token)):
     return Benefit.parse_obj(benefit)
 
 @benefit_router.get(
+    "/id/{benefitId}/diagnosis", description="산정특례 신청서 이미지 가져오기"
+)
+async def get_benefit_diagnosis(benefitId: int):
+    benefit = await db.get_benefit(benefitId)
+    patient = await db.get_user(benefit.userId)
+    doctor = await db.get_user(patient.doctor)
+    image = await create_image_diagnosis(benefit, patient, doctor)
+    byteobj = io.BytesIO()
+    image.save(byteobj, "PNG")
+    byteobj.seek(0)
+    return StreamingResponse(byteobj, media_type="image/png")
+
+@benefit_router.get(
     "/id/{benefitId}/document", description="산정특례 신청서 이미지 가져오기"
 )
 async def get_benefit_document(benefitId: int):
@@ -104,7 +117,6 @@ async def get_benefit_document(benefitId: int):
     image.save(byteobj, "PNG")
     byteobj.seek(0)
     return StreamingResponse(byteobj, media_type="image/png")
-
 
 @benefit_router.get(
     "/approved/{user}",

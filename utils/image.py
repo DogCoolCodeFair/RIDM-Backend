@@ -144,3 +144,31 @@ async def create_image_document(benefit: Benefit, patient: Patient, doctor: Doct
         for pos in sig_pos
     ]
     return target_image
+
+async def create_image_diagnosis(benefit: Benefit, patient: Patient, doctor: Doctor):
+    sig_pos = [(int(840/1.5),int(1740/1.5))]
+    datas = [
+        [(390/1.5,530/1.5),f"{benefit.disease.name}"],
+        [(390/1.5,645/1.5), f"{patient.name}"],
+        [(945/1.5,645/1.5), "020627 - *******"],
+        [(650/1.5,1460/1.5), f"{benefit.date.year}      {benefit.date.month}      {benefit.date.day}"],
+        [(330/1.5,1550/1.5), f"{doctor.hospital}"],
+        [(315/1.5,1650/1.5), f"{doctor.phoneNumber}"],
+        [(450/1.5,1750/1.5), f"{doctor.name}"],
+        [(630/1.5,1750/1.5), f"{doctor.doctorNumber}"],
+    ]
+    for _ in range (int(len(benefit.memo)/1.5)+1):
+        datas.append([(390/1.5,(870+35*_)/1.5),benefit.memo[35*_:35*(_+1)]])
+    
+    target_image = Image.open("./static/base2.png")
+    target_image = target_image.resize((int(target_image.width/1.5), int(target_image.height/1.5)))
+    font = "./static/NanumGothic.ttf"
+    selectedFont = ImageFont.truetype(font, 20)
+    draw = ImageDraw.Draw(target_image)
+    for data in datas:
+        draw.text(data[0], data[1], fill="black", font=selectedFont, align="right")
+    [
+        target_image.paste(base64_to_img(benefit.signature), pos, base64_to_img(benefit.signature))
+        for pos in sig_pos
+    ]
+    return target_image
