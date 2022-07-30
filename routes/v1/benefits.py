@@ -49,7 +49,7 @@ async def reject(benefitId:int, user: str = Depends(verify_doctor)):
     if benefit.status != BenefitStatus.waiting:
         raise HTTPException(status_code=400, detail="Benefit is not waiting")
     benefit.status = BenefitStatus.rejected
-    return await db.update_one("benefits", "benefitId", benefit.id, benefit.dict())
+    return await db.update_one("benefits", "benefitId", benefit.benefitId, benefit.dict())
 
 @benefit_router.get(
     "/@me",
