@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from pydoc import doc
 from typing import List
 
@@ -21,7 +21,7 @@ async def request(disease: Disease, user: str = Depends(verify_token)):
             status_code=403, detail="Should be Patient to access this endpoint"
         )
     benefit = Benefit(
-        status=BenefitStatus.waiting, disease=disease, userId=user.id, date=date.today()
+        benefitId=round(datetime.now().timestamp()),status=BenefitStatus.waiting, disease=disease, userId=user.id, date=date.today()
     )
     await db.insert_one("benefits", benefit.dict())
     return benefit

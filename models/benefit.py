@@ -21,7 +21,7 @@ class BenefitStatus(str, Enum):
 
 class Benefit(BaseModel):  # 산정특례
     benefitId: int = Field(
-        round(datetime.now().timestamp()),
+        ...,
         description="산정특례 아이디",
         example=round(datetime.now().timestamp()),
     )

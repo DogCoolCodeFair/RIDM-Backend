@@ -21,7 +21,7 @@ jobs:
             git pull
             /etc/poetry/bin/poetry install
             /etc/poetry/bin/poetry update
-            sudo kill -9 $(pgrep python) || true
+            sudo kill -9 $(pgrep gunicorn) || true
             tmux kill-session -t ridm || true
             tmux new-session -d -s ridm || true
             tmux send-keys -t ridm "sudo /etc/poetry/bin/poetry run gunicorn app:app" Enter
