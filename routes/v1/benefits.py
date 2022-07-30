@@ -67,6 +67,11 @@ async def my_benefit(user: str = Depends(verify_token)):
         for document in await db.find_many("benefits", "userId", user.id)
     ]
 
+@benefit_router.get("/id/{benefitId}", response_model=Benefit, description="산정특례를 가져옵니다.")
+async def get_benefit(benefitId: int, requester: str = Depends(verify_token)):
+    benefit = await db.get_benefit(benefitId)
+    return Benefit.parse_obj(benefit)
+
 
 @benefit_router.get(
     "/{user}",
