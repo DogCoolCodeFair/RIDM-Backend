@@ -24,4 +24,4 @@ jobs:
             sudo kill -9 $(pgrep python) || true
             tmux kill-session -t ridm || true
             tmux new-session -d -s ridm || true
-            tmux send-keys -t ridm "sudo /etc/poetry/bin/poetry run python -m app" Enter
+            tmux send-keys -t ridm "sudo /etc/poetry/bin/poetry run gunicorn app:app" Enter
