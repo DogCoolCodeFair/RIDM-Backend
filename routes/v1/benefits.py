@@ -72,6 +72,23 @@ async def get_benefit(benefitId: int, requester: str = Depends(verify_token)):
     benefit = await db.get_benefit(benefitId)
     return Benefit.parse_obj(benefit)
 
+@benefit_router.get(
+    "/approved/{user}",
+    response_model=List[Benefit],
+    description="특정 환자의 승인된 산정특례를 가져옵니다. (의사만 접근 가능합니다)",
+)
+async def benefit_approved(user: str, requester: str = Depends(verify_doctor)):
+    user: Patient = await db.get_user(user)
+    if user.isDoctor:
+        raise HTTPException(
+            status_code=403, detail="Should be Patient to query benefits"
+        )
+    return [
+        Benefit.parse_obj(document)
+        for document in await db.find_many("benefits", "userId", user.id) if Benefit.parse_obj(document).status == BenefitStatus.approved
+    ]
+    
+
 
 @benefit_router.get(
     "/{user}",
