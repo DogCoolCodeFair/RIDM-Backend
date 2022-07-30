@@ -95,7 +95,7 @@ async def get_benefit(benefitId: int, requester: str = Depends(verify_token)):
 @benefit_router.get(
     "/id/{benefitId}/document", description="산정특례 신청서 이미지 가져오기"
 )
-async def get_benefit_document(benefitId: int, requester: str = Depends(verify_token)):
+async def get_benefit_document(benefitId: int):
     benefit = await db.get_benefit(benefitId)
     patient = await db.get_user(benefit.userId)
     doctor = await db.get_user(patient.doctor)
