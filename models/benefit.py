@@ -34,7 +34,7 @@ class Benefit(BaseModel):  # 산정특례
     memo: Optional[str] = Field(
         None, description="소견서 작성", example="환자의 증상과 질환을 기준으로 정확히 작성해주세요."
     )
-    date: Optional[date]   # Field(None, description="날자")
+    date: Optional[date]  # Field(None, description="날자")
     type: Optional[DiseaseType] = Field(
         None, description="질환 종류", example=DiseaseType.cancer
     )

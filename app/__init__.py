@@ -26,6 +26,7 @@ app = FastAPI(**app_config)
 async def route_root():
     return RedirectResponse(url="/docs/swagger")
 
+
 app.include_router(v1_router, prefix="/v1")
 
 
@@ -36,4 +37,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-

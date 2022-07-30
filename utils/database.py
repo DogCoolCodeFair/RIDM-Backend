@@ -36,6 +36,7 @@ async def find_many(collection, key, value):
         documents.append(document)
     return documents
 
+
 async def search_db(collection, key, value):
     query = {key: {"$regex": value}}
     documents = []
@@ -43,6 +44,7 @@ async def search_db(collection, key, value):
         document.pop("_id")
         documents.append(document)
     return documents
+
 
 async def update_one(collection, key, value, data):
     query = {key: {"$eq": value}}
@@ -65,6 +67,7 @@ async def get_benefit(benefitId) -> Benefit:
         return Benefit(**data)
     else:
         raise HTTPException(status_code=404, detail="Benefit not found")
+
 
 async def get_user(id) -> Union[Patient, Doctor]:
     data = await find_one("users", "id", id)
