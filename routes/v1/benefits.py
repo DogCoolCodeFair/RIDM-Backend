@@ -41,7 +41,7 @@ async def process(
         raise HTTPException(status_code=400, detail="Benefit is not waiting")
     benefit.memo, benefit.type, benefit.methodIndex, benefit.signature = memo, type, methodIndex, signature
     benefit.status = BenefitStatus.approved
-    return await db.update_one("benefits", "benefitId", benefit.id, benefit.dict())
+    return await db.update_one("benefits", "benefitId", benefit.benefitId, benefit.dict())
 
 @benefit_router.post("/reject/{benefitId}", response_model=Benefit)
 async def reject(benefitId:int, user: str = Depends(verify_doctor)):
@@ -50,6 +50,23 @@ async def reject(benefitId:int, user: str = Depends(verify_doctor)):
         raise HTTPException(status_code=400, detail="Benefit is not waiting")
     benefit.status = BenefitStatus.rejected
     return await db.update_one("benefits", "benefitId", benefit.id, benefit.dict())
+
+@benefit_router.get(
+    "/@me",
+    response_model=List[Benefit],
+    description="자신의 산정특례를 가져옵니다. ",
+)
+async def my_benefit(user: str = Depends(verify_token)):
+    user: Patient = await db.get_user(user)
+    if user.isDoctor:
+        raise HTTPException(
+            status_code=403, detail="Should be Patient to query benefits"
+        )
+    return [
+        Benefit.parse_obj(document)
+        for document in await db.find_many("benefits", "userId", user.id)
+    ]
+
 
 @benefit_router.get(
     "/{user}",
@@ -64,5 +81,6 @@ async def find_benefit(user: str, requester: str = Depends(verify_doctor)):
         )
     return [
         Benefit.parse_obj(document)
-        for document in await db.find_many("benefits", "userId", user.id)
+        for document in await db.find_many("benefits", "userId", user.id) if Benefit.parse_obj(document).status == BenefitStatus.waiting
     ]
+    
