@@ -4,8 +4,8 @@ from typing import Union
 
 from dotenv import load_dotenv
 from fastapi import HTTPException
-from models.benefit import Benefit
 
+from models.benefit import Benefit
 from models.user import Doctor, Patient
 
 load_dotenv()

@@ -3,8 +3,8 @@ import os
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
+from starlette.middleware.cors import CORSMiddleware
 
 from routes.v1 import v1_router
 
